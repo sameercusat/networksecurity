@@ -39,3 +39,5 @@ htmlcov/
 # Jupyter Notebook
 .ipynb_checkpoints/
 Artifacts/
+mlruns/
+mlflow.db
