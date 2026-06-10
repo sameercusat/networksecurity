@@ -78,5 +78,4 @@ async def predict_route(request:Request,file:UploadFile=File(...)):
             return templates.TemplateResponse(request=request,name="table.html",context={"table":table_html})
     
     except Exception as e:
-        traceback.print_exc()
-        raise
+        raise NetworkSecurityException(e,sys)
