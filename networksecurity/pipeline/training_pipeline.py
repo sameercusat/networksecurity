@@ -13,10 +13,13 @@ from networksecurity.entity.artifact_entity import (
 import sys
 from networksecurity.exception.exception import NetworkSecurityException
 from networksecurity.logging.logger import logging
+from networksecurity.cloud.s3_syncer import S3sync
+from networksecurity.constant.training_pipeline import TRAINING_BUCKET_NAME
 
 class TrainingPipeline:
     def __init__(self):
         self.trainingPipelineConfig = TrainingPipelineConfig()
+        self.s3_sync = S3sync()
     
     def start_data_ingestion(self):
         try:
@@ -61,12 +64,28 @@ class TrainingPipeline:
         except Exception as e:
             raise NetworkSecurityException(e,sys)
     
+    def sync_artifact_dir_to_s3(self):
+        try:
+            aws_bucket_url = f"s3://{TRAINING_BUCKET_NAME}/artifact/{self.trainingPipelineConfig.timestamp}"
+            self.s3_sync.sync_folder_to_s3(folder=self.trainingPipelineConfig.artifact_dir,aws_bucket_url=aws_bucket_url)
+        except Exception as e:
+            raise NetworkSecurityException(e,sys)
+    
+    def sync_saved_model_dir_to_s3(self):
+        try:
+            aws_bucket_url = f"s3://{TRAINING_BUCKET_NAME}/final_model/{self.trainingPipelineConfig.timestamp}"
+            self.s3_sync.sync_folder_to_s3(folder = self.trainingPipelineConfig.model_dir,aws_bucket_url=aws_bucket_url)
+        except Exception as e:
+            raise NetworkSecurityException(e,sys)    
+        
     def run_pipeline(self):
         try:
             dataIngestionArtifact = self.start_data_ingestion()
             dataValidationArtifact = self.start_data_validation(dataIngestionArtifact=dataIngestionArtifact)
             dataTranformationArtifact = self.start_data_transformation(dataValidationArtifact=dataValidationArtifact)
             modelTrainerArtifact = self.start_model_training(dataTransformationArtifact=dataTranformationArtifact)
+            self.sync_artifact_dir_to_s3()
+            self.sync_saved_model_dir_to_s3()
             return modelTrainerArtifact
         except Exception as e:
             raise NetworkSecurityException(e,sys)
