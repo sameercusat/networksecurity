@@ -41,3 +41,8 @@ htmlcov/
 Artifacts/
 mlruns/
 mlflow.db
+
+predicted_output/
+final_model/
+mlruns/
+upload/

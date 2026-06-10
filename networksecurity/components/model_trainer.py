@@ -14,6 +14,8 @@ from networksecurity.utils.main_utils.utils import evaluate_model,save_pickle_fi
 from networksecurity.utils.ml_utils.metric import classification_metric
 from networksecurity.utils.ml_utils.model.estimator import NetoworkModel
 import mlflow
+import dagshub
+dagshub.init(repo_owner='sameercusat', repo_name='networksecurity', mlflow=True)
 
 
 
@@ -101,6 +103,9 @@ class ModelTrainer:
                 os.makedirs(model_dir_name,exist_ok=True)
                 logging.info('Importing the Preprocessor Object')
                 preprocessor_obj = load_object(self.dataTransformationArtifact.transformed_obj_file_path)
+                os.makedirs('final_model',exist_ok=True)
+                save_pickle_file(preprocessor_obj,'final_model/preprocessor.pkl')
+                save_pickle_file(best_model,'final_model/model.pkl')
                 network_model = NetoworkModel(preprocessor=preprocessor_obj,model = best_model)
                 save_pickle_file(network_model,self.modelTrainerConfig.model_trainer_trained_model_path)
                 logging.info("Saving the Netowrk Model")
