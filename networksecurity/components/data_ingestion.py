@@ -24,6 +24,9 @@ class DataIngestion:
         try:        
                 database =self.dataIngestionConfig.database_name
                 collection = self.dataIngestionConfig.collection_name
+                print("DATABASE",database)
+                print("collection",collection)
+                print("URI",MONGODB_URI)
                 self.mongo_client = MongoClient(MONGODB_URI)
                 collections = self.mongo_client[database][collection]
                 df = pd.DataFrame(list(collections.find()))
